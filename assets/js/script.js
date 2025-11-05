@@ -1,24 +1,39 @@
-
 const API_URL = "https://ci-jshint.herokuapp.com/api";
 
 // https://getbootstrap.com/docs/5.0/components/modal/#via-javascript
-const resultsModal = new bootstrap.Modal(document.getElementById("resultsModal")); 
+const resultsModal = new bootstrap.Modal(document.getElementById("resultsModal"));
 
 document.getElementById("status").addEventListener("click", e => getStatus(e));
 document.getElementById("submit").addEventListener("click", e => postForm(e));
 
+function processOptions(form) {
+    let optArray = [];
+
+    for (let entry of form.entries()) {
+        if (entry[0] === "options") {
+            optArray.push(entry[1]);
+        }
+    }
+
+    form.delete("options");
+
+    form.append("options", optArray.join());
+
+    return form;
+}
+
 async function postForm(e) {
-    const form = new FormData(document.getElementById("checksform")); // https://developer.mozilla.org/en-US/docs/Web/API/FormData
+    const form = processOptions(new FormData(document.getElementById("checksform"))); // https://developer.mozilla.org/en-US/docs/Web/API/FormData
 
     const response = await fetch(API_URL, {
-                        method: "POST",
-                        headers: {
-                                    "Authorization": API_KEY,
-                                 },
-                        body: form,
-                        });
+        method: "POST",
+        headers: {
+            "Authorization": API_KEY,
+        },
+        body: form,
+    });
 
-    const data = await response.json();                    
+    const data = await response.json();
 
     if (response.ok) {
         displayErrors(data);
@@ -76,4 +91,3 @@ function displayStatus(data) {
     resultsModal.show();
 
 }
-
